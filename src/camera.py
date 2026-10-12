@@ -75,9 +75,6 @@ def run_camera():
 
             # Aucun résultat réel n'est encore connecté
             faces = []
-
-            frame = display_result(frame, faces) 
-
             frame = display_result(frame, faces)
 
             cv2.imshow("Projet de reconnaissance faciale", frame)
