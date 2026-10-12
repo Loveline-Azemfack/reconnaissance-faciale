@@ -1,3 +1,4 @@
+
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
@@ -27,9 +28,32 @@ class FaceRecognitionInterface:
         # reste visible dans la fenêtre.
         self.photo_reference = None
 
+        # Palette de couleurs noir et violet.
+        self.colors = {
+            "background": "#0B0B10",
+            "panel": "#171720",
+            "purple": "#8B5CF6",
+            "purple_hover": "#7042D8",
+            "purple_light": "#A78BFA",
+            "text": "#F5F3FF",
+            "muted": "#B8B5C8",
+            "border": "#343044",
+            "image_background": "#101016",
+            "red": "#E5484D",
+            "red_hover": "#BE3439",
+        }
+
+        # Police moderne disponible sur la plupart des systèmes.
+        self.font_title = ("Segoe UI", 21, "bold")
+        self.font_subtitle = ("Segoe UI", 11)
+        self.font_normal = ("Segoe UI", 11)
+        self.font_button = ("Segoe UI", 10, "bold")
+        self.font_results = ("Segoe UI", 11)
+
         self.root.title("Système de reconnaissance faciale")
         self.root.geometry("1100x750")
         self.root.minsize(800, 600)
+        self.root.configure(bg=self.colors["background"])
 
         self._build_interface()
 
@@ -46,14 +70,18 @@ class FaceRecognitionInterface:
         titre = tk.Label(
             self.root,
             text="SYSTÈME DE RECONNAISSANCE FACIALE",
-            font=("Arial", 20, "bold")
+            font=self.font_title,
+            bg=self.colors["background"],
+            fg=self.colors["purple_light"]
         )
-        titre.pack(pady=15)
+        titre.pack(pady=(18, 8))
 
         sous_titre = tk.Label(
             self.root,
             text="Identification des étudiants enregistrés",
-            font=("Arial", 11)
+            font=self.font_subtitle,
+            bg=self.colors["background"],
+            fg=self.colors["muted"]
         )
         sous_titre.pack(pady=5)
 
@@ -61,9 +89,12 @@ class FaceRecognitionInterface:
         self.image_label = tk.Label(
             self.root,
             text="Aucune image affichée",
-            bg="#202020",
-            fg="white",
-            font=("Arial", 14)
+            bg=self.colors["image_background"],
+            fg=self.colors["muted"],
+            font=("Segoe UI", 14),
+            bd=0,
+            highlightthickness=1,
+            highlightbackground=self.colors["border"]
         )
 
         self.image_label.pack(
@@ -74,14 +105,19 @@ class FaceRecognitionInterface:
         )
 
         # On regroupe les boutons pour garder une interface bien rangée.
-        boutons = tk.Frame(self.root)
+        boutons = tk.Frame(
+            self.root,
+            bg=self.colors["background"]
+        )
         boutons.pack(pady=10)
 
-        self.camera_button = tk.Button(
+        self.camera_button = self._create_rounded_button(
             boutons,
             text="Ouvrir la webcam",
-            width=20,
-            command=self.open_camera
+            command=self.open_camera,
+            width=160,
+            color=self.colors["purple"],
+            hover_color=self.colors["purple_hover"]
         )
         self.camera_button.grid(
             row=0,
@@ -90,11 +126,13 @@ class FaceRecognitionInterface:
             pady=5
         )
 
-        self.stop_button = tk.Button(
+        self.stop_button = self._create_rounded_button(
             boutons,
             text="Arrêter la webcam",
-            width=20,
-            command=self.close_camera
+            command=self.close_camera,
+            width=160,
+            color=self.colors["panel"],
+            hover_color="#302A40"
         )
         self.stop_button.grid(
             row=0,
@@ -103,11 +141,13 @@ class FaceRecognitionInterface:
             pady=5
         )
 
-        self.image_button = tk.Button(
+        self.image_button = self._create_rounded_button(
             boutons,
             text="Charger une image",
-            width=20,
-            command=self.load_image
+            command=self.load_image,
+            width=160,
+            color=self.colors["panel"],
+            hover_color="#302A40"
         )
         self.image_button.grid(
             row=0,
@@ -116,11 +156,14 @@ class FaceRecognitionInterface:
             pady=5
         )
 
-        self.quit_button = tk.Button(
+        self.quit_button = self._create_rounded_button(
             boutons,
             text="Quitter",
-            width=20,
-            command=self.quit_application
+            command=self.quit_application,
+            width=160,
+            color="#48202A",
+            hover_color="#672A38",
+            text_color="#FFC4CC"
         )
         self.quit_button.grid(
             row=0,
@@ -133,7 +176,9 @@ class FaceRecognitionInterface:
         self.status_label = tk.Label(
             self.root,
             text="Statut : prêt",
-            font=("Arial", 11),
+            font=self.font_normal,
+            bg=self.colors["background"],
+            fg=self.colors["purple_light"],
             anchor="w"
         )
         self.status_label.pack(
@@ -147,7 +192,13 @@ class FaceRecognitionInterface:
             self.root,
             text="Résultats de la reconnaissance",
             padx=10,
-            pady=5
+            pady=5,
+            font=("Segoe UI", 11, "bold"),
+            bg=self.colors["panel"],
+            fg=self.colors["purple_light"],
+            bd=1,
+            relief="solid",
+            highlightbackground=self.colors["border"]
         )
         cadre_resultats.pack(
             fill="x",
@@ -158,11 +209,110 @@ class FaceRecognitionInterface:
         self.results_label = tk.Label(
             cadre_resultats,
             text="Aucun visage reconnu pour le moment.",
-            font=("Arial", 11),
+            font=self.font_results,
+            bg=self.colors["panel"],
+            fg=self.colors["text"],
             anchor="w",
             justify="left"
         )
         self.results_label.pack(fill="x")
+
+    def _create_rounded_button(
+        self,
+        parent,
+        text,
+        command,
+        width=160,
+        height=42,
+        color=None,
+        hover_color=None,
+        text_color=None,
+        radius=14
+    ):
+        """
+        Crée un bouton visuellement arrondi avec Canvas Tkinter.
+
+        Le bouton conserve une commande classique et sa position
+        dans la grille reste définie par les appels à grid().
+        """
+
+        color = color or self.colors["purple"]
+        hover_color = hover_color or self.colors["purple_hover"]
+        text_color = text_color or self.colors["text"]
+
+        canvas = tk.Canvas(
+            parent,
+            width=width,
+            height=height,
+            bg=self.colors["background"],
+            highlightthickness=0,
+            bd=0,
+            cursor="hand2"
+        )
+
+        def rounded_rectangle(x1, y1, x2, y2, r, fill):
+            """Dessine un rectangle aux coins arrondis."""
+
+            points = [
+                x1 + r, y1,
+                x2 - r, y1,
+                x2, y1,
+                x2, y1 + r,
+                x2, y2 - r,
+                x2, y2,
+                x2 - r, y2,
+                x1 + r, y2,
+                x1, y2,
+                x1, y2 - r,
+                x1, y1 + r,
+                x1, y1
+            ]
+
+            return canvas.create_polygon(
+                points,
+                smooth=True,
+                splinesteps=24,
+                fill=fill,
+                outline=fill
+            )
+
+        shape = rounded_rectangle(
+            2, 2, width - 2, height - 2,
+            radius, color
+        )
+
+        label = canvas.create_text(
+            width // 2,
+            height // 2,
+            text=text,
+            font=self.font_button,
+            fill=text_color
+        )
+
+        def on_enter(event):
+            canvas.itemconfigure(shape, fill=hover_color)
+            canvas.itemconfigure(shape, outline=hover_color)
+
+        def on_leave(event):
+            canvas.itemconfigure(shape, fill=color)
+            canvas.itemconfigure(shape, outline=color)
+
+        def on_click(event):
+            command()
+
+        canvas.bind("<Enter>", on_enter)
+        canvas.bind("<Leave>", on_leave)
+        canvas.bind("<Button-1>", on_click)
+
+        canvas.tag_bind(shape, "<Enter>", on_enter)
+        canvas.tag_bind(shape, "<Leave>", on_leave)
+        canvas.tag_bind(shape, "<Button-1>", on_click)
+
+        canvas.tag_bind(label, "<Enter>", on_enter)
+        canvas.tag_bind(label, "<Leave>", on_leave)
+        canvas.tag_bind(label, "<Button-1>", on_click)
+
+        return canvas
 
     def show_image(self, image, status=None):
         """Affiche une image OpenCV dans la fenêtre."""
