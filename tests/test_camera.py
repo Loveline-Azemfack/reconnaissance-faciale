@@ -1,21 +1,40 @@
 
 import cv2
+import numpy as np
 
-for index in range(5):
-    print(f"\nTest de la caméra {index}")
+from src.camera import display_result
 
-    camera = cv2.VideoCapture(index, cv2.CAP_DSHOW)
 
-    if not camera.isOpened():
-        print("Impossible d'ouvrir cette caméra.")
-        camera.release()
-        continue
+def test_display_result_draws_rectangle():
+    """Vérifie que display_result dessine un rectangle vert."""
 
-    ret, frame = camera.read()
+    # Créer une image noire de 100 x 100 pixels
+    frame = np.zeros((100, 100, 3), dtype=np.uint8)
 
-    if ret and frame is not None:
-        print("SUCCÈS : image récupérée !", frame.shape)
-    else:
-        print("ÉCHEC : caméra ouverte, mais aucune image.")
+    # Simuler un résultat de détection
+    faces = [
+        {
+            "box": (10, 10, 30, 30),
+            "name": "Inconnu",
+            "confidence": 45.0
+        }
+    ]
 
-    camera.release()
+    # Appliquer l'affichage
+    result = display_result(frame, faces)
+
+    # Vérifier que la fonction renvoie une image
+    assert result is frame
+
+    # Vérifier que le coin du rectangle est vert (format BGR)
+    assert np.array_equal(result[10, 10], [0, 255, 0])
+
+
+def test_display_result_with_no_faces():
+    """Vérifie que la fonction accepte une liste vide."""
+
+    frame = np.zeros((100, 100, 3), dtype=np.uint8)
+
+    result = display_result(frame, [])
+
+    assert result is frame
