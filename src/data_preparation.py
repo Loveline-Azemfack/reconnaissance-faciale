@@ -50,7 +50,7 @@ def verify_dataset():
             continue
 
         # Affiche le nom de l'étudiant en cours de vérification.
-        print(f"\nÉtudiant : {student_dir.name}")
+        print(f"\nÉtudiant(e) : {student_dir.name}")
 
         # Parcourt les images trouvées dans le dossier.
         for image_path in image_files:
