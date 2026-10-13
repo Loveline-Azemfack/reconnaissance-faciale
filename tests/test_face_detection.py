@@ -58,7 +58,7 @@ def charger_modele():
 
 
 # ============================================================
-# 3. DETECTION DES VISAGES
+# 3. DETECTION DES VISAGES ET IMAGES
 # ============================================================
 
 def detecter_visages(image):
