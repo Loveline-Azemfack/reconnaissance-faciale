@@ -53,8 +53,8 @@ def open_camera():
         return True
 
     webcam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    webcam.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-    webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+    webcam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
     if not webcam.isOpened():
         webcam.release()
